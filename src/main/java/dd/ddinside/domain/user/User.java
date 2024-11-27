@@ -1,9 +1,13 @@
 package dd.ddinside.domain.user;
 
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Builder
 public class User
 {
@@ -18,6 +22,4 @@ public class User
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private String status;
-
-    
 }
