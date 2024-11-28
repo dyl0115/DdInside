@@ -1,4 +1,4 @@
-package dd.ddinside.infra.config.database;
+package dd.ddinside.config.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -30,7 +30,7 @@ public class DatabaseConfig
     }
 
     @Bean
-    @Profile("datasource")
+    @Profile("hikari")
     public DataSource hikiariDataSource()
     {
         HikariConfig config = new HikariConfig();
@@ -39,5 +39,12 @@ public class DatabaseConfig
         config.setPassword(password);
 
         return new HikariDataSource(config);
+    }
+
+    @Bean
+    @Profile("driverManager")
+    public JdbcTransactionManager jdbcTransactionManager(DataSource dataSource)
+    {
+        return new JdbcTransactionManager(dataSource);
     }
 }

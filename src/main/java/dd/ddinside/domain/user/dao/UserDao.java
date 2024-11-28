@@ -1,61 +1,46 @@
 package dd.ddinside.domain.user.dao;
 
 import dd.ddinside.domain.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import dd.ddinside.domain.user.dto.UserSaveDto;
+import dd.ddinside.config.database.JdbcTransactionManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Repository
 public class UserDao
 {
-    private final DataSource dataSource;
+    private final JdbcTransactionManager transactionManager;
 
-    @Autowired
-    public UserDao(DataSource dataSource)
+    public Long save(UserSaveDto userDto)
     {
-        this.dataSource = dataSource;
-    }
-
-    public void save(User user)
-    {
-
+        String sql = "INSERT INTO USERS(USERNAME,PASSWORD,NICKNAME,NAME,PHONE,EMAIL,PROFILE_IMAGE_URL,CREATED_AT,MODIFIED_AT,STATUS) VALUES(?,?,?,?,?,?,?,?,?,?)";
+        Connection conn = transactionManager.begin();
+        Long id = transactionManager.updateAndReturnKey(conn, sql, pstmt ->
+        {
+            pstmt.setString(1, userDto.getUsername());
+            pstmt.setString(2, userDto.getPassword());
+            pstmt.setString(3, userDto.getNickname());
+            pstmt.setString(4, userDto.getName());
+            pstmt.setString(5, userDto.getPhone());
+            pstmt.setString(6, userDto.getEmail());
+            pstmt.setString(7, userDto.getProfileImageUrl());
+            pstmt.setTimestamp(8, Timestamp.valueOf(userDto.getCreatedAt()));
+            pstmt.setTimestamp(9, Timestamp.valueOf(userDto.getModifiedAt()));
+            pstmt.setString(10, userDto.getStatus());
+        });
+        transactionManager.commit(conn);
+        return id;
     }
 
     public User findById(Long id)
     {
-        JdbcTemplate<User> template = new JdbcTemplate<>(dataSource);
-
-        String query = "SELECT * FROM USERS WHERE ID = ?";
-        return template.query(
-                query,
-                pstmt -> pstmt.setLong(1, id),
-                rs ->
-                {
-                    if (rs.next())
-                    {
-                        return User.builder()
-                                .id(rs.getLong("id"))
-                                .username(rs.getString("username"))
-                                .password(rs.getString("password"))
-                                .nickname(rs.getString("nickname"))
-                                .name(rs.getString("name"))
-                                .phone(rs.getString("phone"))
-                                .email(rs.getString("email"))
-                                .profileImageUrl(rs.getString("profile_image_url"))
-                                .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                                .modifiedAt(rs.getTimestamp("modified_at").toLocalDateTime())
-                                .status(rs.getString("status"))
-                                .build();
-                    }
-                    return null;
-                }
-        );
+        return null;
     }
-
 
     public User findByEmail(String email)
     {
