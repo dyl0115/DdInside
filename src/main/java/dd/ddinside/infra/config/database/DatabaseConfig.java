@@ -24,14 +24,14 @@ public class DatabaseConfig
 
     @Bean
     @Profile("driverManager")
-    public DataSource driverManagerConnection()
+    public DataSource drivermanagerDataSource()
     {
         return new DriverManagerDataSource(url, username, password);
     }
 
     @Bean
     @Profile("datasource")
-    public DataSource dataSourceConnection()
+    public DataSource hikiariDataSource()
     {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);

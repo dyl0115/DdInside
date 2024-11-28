@@ -29,53 +29,43 @@ public class UserDao
 
     public User findById(Long id)
     {
-        String query = "SELECT * FROM USERS WHERE ID = ?";
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try
+        JdbcTemplate<User> template = new JdbcTemplate<>(dataSource)
         {
-            conn = dataSource.getConnection();
-            stmt = conn.prepareStatement(query);
-            stmt.setLong(1, id);
-            rs = stmt.executeQuery();
-
-            if (rs.next())
+            @Override
+            protected User mapResult(ResultSet rs) throws SQLException
             {
-                return User.builder()
-                        .id(rs.getLong("id"))
-                        .username(rs.getString("username"))
-                        .password(rs.getString("password"))
-                        .nickname(rs.getString("nickname"))
-                        .name(rs.getString("name"))
-                        .phone(rs.getString("phone"))
-                        .email(rs.getString("email"))
-                        .profileImageUrl(rs.getString("profile_image_url"))
-                        .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                        .modifiedAt(rs.getTimestamp("modified_at").toLocalDateTime())
-                        .status(rs.getString("status"))
-                        .build();
+                if (rs.next())
+                {
+                    return User.builder()
+                            .id(rs.getLong("id"))
+                            .username(rs.getString("username"))
+                            .password(rs.getString("password"))
+                            .nickname(rs.getString("nickname"))
+                            .name(rs.getString("name"))
+                            .phone(rs.getString("phone"))
+                            .email(rs.getString("email"))
+                            .profileImageUrl(rs.getString("profile_image_url"))
+                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                            .modifiedAt(rs.getTimestamp("modified_at").toLocalDateTime())
+                            .status(rs.getString("status"))
+                            .build();
+                }
+                return null;
             }
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
-        }
-        finally
+        };
+
+        String query = "SELECT * FROM USERS WHERE ID = ?";
+        return template.execute(query, stmt ->
         {
             try
             {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
+                stmt.setLong(1, 1);
             }
             catch (SQLException e)
             {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
-        }
-        return null;
+        });
     }
 
 
