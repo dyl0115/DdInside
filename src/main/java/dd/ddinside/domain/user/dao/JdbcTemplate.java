@@ -5,9 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.function.Consumer;
 
-public abstract class JdbcTemplate<T>
+public class JdbcTemplate<T>
 {
     private final DataSource dataSource;
 
@@ -16,44 +15,33 @@ public abstract class JdbcTemplate<T>
         this.dataSource = dataSource;
     }
 
-    public T execute(String query, Consumer<PreparedStatement> statementBinder)
+    public T query(String sql, StatementSetter setter, ResultMapper<T> mapper)
     {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql))
         {
-            conn = dataSource.getConnection();
-            stmt = conn.prepareStatement(query);
-            statementBinder.accept(stmt);
-            rs = stmt.executeQuery();
+            setter.setValues(pstmt);
 
-            return mapResult(rs);
+            try (ResultSet rs = pstmt.executeQuery())
+            {
+                return mapper.mapResult(rs);
+            }
         }
         catch (SQLException e)
         {
             throw new RuntimeException(e);
         }
-        finally
-        {
-            closeResources(rs, stmt, conn);
-        }
     }
 
-    protected abstract T mapResult(ResultSet rs) throws SQLException;
-
-    private void closeResources(ResultSet rs, PreparedStatement stmt, Connection conn)
+    @FunctionalInterface
+    public interface StatementSetter
     {
-        try
-        {
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (conn != null) conn.close();
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
+        void setValues(PreparedStatement pstmt) throws SQLException;
+    }
+
+    @FunctionalInterface
+    public interface ResultMapper<R>
+    {
+        R mapResult(ResultSet rs) throws SQLException;
     }
 }

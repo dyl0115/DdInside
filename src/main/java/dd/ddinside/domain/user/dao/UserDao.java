@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -29,43 +27,33 @@ public class UserDao
 
     public User findById(Long id)
     {
-        JdbcTemplate<User> template = new JdbcTemplate<>(dataSource)
-        {
-            @Override
-            protected User mapResult(ResultSet rs) throws SQLException
-            {
-                if (rs.next())
-                {
-                    return User.builder()
-                            .id(rs.getLong("id"))
-                            .username(rs.getString("username"))
-                            .password(rs.getString("password"))
-                            .nickname(rs.getString("nickname"))
-                            .name(rs.getString("name"))
-                            .phone(rs.getString("phone"))
-                            .email(rs.getString("email"))
-                            .profileImageUrl(rs.getString("profile_image_url"))
-                            .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-                            .modifiedAt(rs.getTimestamp("modified_at").toLocalDateTime())
-                            .status(rs.getString("status"))
-                            .build();
-                }
-                return null;
-            }
-        };
+        JdbcTemplate<User> template = new JdbcTemplate<>(dataSource);
 
         String query = "SELECT * FROM USERS WHERE ID = ?";
-        return template.execute(query, stmt ->
-        {
-            try
-            {
-                stmt.setLong(1, 1);
-            }
-            catch (SQLException e)
-            {
-                throw new RuntimeException(e);
-            }
-        });
+        return template.query(
+                query,
+                pstmt -> pstmt.setLong(1, id),
+                rs ->
+                {
+                    if (rs.next())
+                    {
+                        return User.builder()
+                                .id(rs.getLong("id"))
+                                .username(rs.getString("username"))
+                                .password(rs.getString("password"))
+                                .nickname(rs.getString("nickname"))
+                                .name(rs.getString("name"))
+                                .phone(rs.getString("phone"))
+                                .email(rs.getString("email"))
+                                .profileImageUrl(rs.getString("profile_image_url"))
+                                .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                                .modifiedAt(rs.getTimestamp("modified_at").toLocalDateTime())
+                                .status(rs.getString("status"))
+                                .build();
+                    }
+                    return null;
+                }
+        );
     }
 
 
