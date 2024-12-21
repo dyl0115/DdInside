@@ -2,20 +2,17 @@ spring:
   application:
     name: ddinside
 
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ddinside?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: 비밀번호
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 300000
-      connection-timeout: 20000
-      max-lifetime: 1200000
-    sql:
-      init:
-        encoding: UTF-8
+    datasource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/ddinside?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      username: root
+      password: endyd132!!
+
+mybatis:
+  type-aliases-package: com.your.package.model
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
 
 logging:
   level:

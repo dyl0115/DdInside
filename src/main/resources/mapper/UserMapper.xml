@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dd.ddinside.user.repository.UserMapper">
+
+    <insert id="save" parameterType="UserBaseDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (username, password, nickname, name, phone, email, profile_image_url, created_at,
+                           modified_at,
+                           status)
+        VALUES (#{username}, #{password}, #{nickname}, #{name}, #{phone}, #{email}, #{profileImageUrl},
+                #{createdAt}, #{modifiedAt}, #{status});
+    </insert>
+
+    <select id="findById" parameterType="Long" resultType="UserBaseDto">
+        SELECT *
+        FROM users
+        WHERE ID = (#{id});
+    </select>
+
+</mapper>

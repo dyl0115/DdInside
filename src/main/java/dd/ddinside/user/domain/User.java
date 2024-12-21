@@ -1,11 +1,13 @@
-package dd.ddinside.domain.user.dto;
+package dd.ddinside.user.domain;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
-public class UserSaveDto
+public class User
 {
     private Long id;
     private String username;
